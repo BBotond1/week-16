@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
 import "./App.css";
-import Beer from "./components/Beer";
 import Beers from "./components/Beers";
 import LoadingMask from "./components/LoadingMask";
 
@@ -8,6 +7,7 @@ function App() {
   const [beers, setBeers] = useState([]);
   const [perPage, setPerPage] = useState(10);
   const [filter, setFilter] = useState("");
+  const [sortBy, setSortBy] = useState("asc");
 
   useEffect(() => {
     fetch(`https://api.punkapi.com/v2/beers?per_page=${perPage}`)
@@ -18,6 +18,26 @@ function App() {
         }, 1000);
       });
   }, [perPage]);
+
+  // useEffect(() => {
+  //   sortBy === "asc"
+  //     ? setBeers((beers) => beers.sort((a, b) => (a.name > b.name ? -1 : 1)))
+  //     : setBeers((beers) => beers.sort((a, b) => (a.name < b.name ? -1 : 1)));
+  // }, [sortBy]);
+
+  useEffect(() => {
+    sortBy === "asc"
+      ? setBeers([...beers].sort((a, b) => a.name > b.name ? 1 : -1)
+        )
+      : setBeers([...beers].sort((a, b) => a.name < b.name ? 1 : -1)
+        );
+  }, [sortBy])     //mukodik firefox es chrome-ban is 
+
+  // useEffect(() => {
+  //   sortBy === "asc"
+  //     ? setBeers(beers => beers.sort((a, b) => a.name > b.name))
+  //     : setBeers(beers => beers.sort((a, b) => a.name < b.name))
+  // }, [sortBy]);
 
   console.log(beers);
 
@@ -40,7 +60,20 @@ function App() {
           setFilter(event.target.value);
         }}
       />
-      {beers.length > 0 ? <Beers beers={beers} filter={filter} /> : <LoadingMask />}
+
+      <button
+        onClick={() => {
+          sortBy === "asc" ? setSortBy("desc") : setSortBy("asc");
+        }}
+      >
+        Sort by {sortBy}
+      </button>
+
+      {beers.length > 0 ? (
+        <Beers beers={beers} filter={filter} sortBy={sortBy} />
+      ) : (
+        <LoadingMask />
+      )}
     </div>
   );
 }
